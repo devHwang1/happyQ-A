@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amaranth10 Happy Q&A Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #a855f7;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --header-bg: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --table-header: #7c3aed;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Input Area */
+        .input-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-family: 'monospace';
+            font-size: 0.85rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #f1f5f9;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: var(--text-muted);
+        }
+
+        /* Stats & Filter */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .stats b {
+            color: var(--primary);
+        }
+
+        /* Table Design - Matching Image */
+        .table-wrapper {
+            background: white;
+            border-radius: 0;
+            overflow-x: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 1000px;
+        }
+
+        thead tr {
+            background-color: #7b68ee; /* MediumSlateBlue */
+            color: white;
+        }
+
+        th {
+            padding: 12px 8px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .sub-header th {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            vertical-align: middle;
+            word-break: break-all;
+        }
+
+        .col-no { width: 40px; text-align: center; background: #f9f9f9; }
+        .col-meta { width: 180px; }
+        .col-menu { width: 120px; font-weight: bold; text-align: center; }
+        .col-type { width: 60px; text-align: center; }
+        .col-content { min-width: 400px; }
+        .col-reqno { width: 120px; color: #666; font-size: 0.75rem; text-align: center; }
+
+        .row-group {
+            border-bottom: 2px solid #7b68ee;
+        }
+
+        .type-q { color: #2563eb; font-weight: bold; }
+        .type-a { color: #dc2626; font-weight: bold; }
+
+        .content-box {
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        tr:hover td {
+            background-color: #f1f5f9;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        /* Print Style */
+        @media print {
+            .input-section, .toolbar, header { display: none; }
+            body { background: white; padding: 0; }
+            .container { max-width: 100%; padding: 0; }
+            .table-wrapper { box-shadow: none; border: none; }
+            td, th { border: 1px solid #000 !important; }
+        }
+
+        /* Loading Overlay */
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── 사용법 버튼 ─── */
+        .btn-guide {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.18);
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            transition: all 0.25s ease;
+            margin-top: 1rem;
+            letter-spacing: 0.02em;
+        }
+        .btn-guide:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .btn-guide svg { flex-shrink: 0; }
+
+        /* ─── 모달 오버레이 ─── */
+        #guide-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 10, 40, 0.75);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.25s ease;
+        }
+        #guide-modal.open { display: flex; }
+
+        /* ─── 모달 본체 ─── */
+        .modal-box {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 860px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.2);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            background: var(--header-bg);
+            color: white;
+            padding: 20px 28px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { font-size: 1.3rem; font-weight: 800; }
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.4); }
+
+        .modal-body { padding: 24px 28px; }
+
+        /* 동영상 */
+        .guide-video {
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: #000;
+            max-height: 340px;
+            display: block;
+        }
+
+        /* 사용 단계 */
+        .guide-steps {
+            margin-top: 24px;
+        }
+        .guide-steps h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .step-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .step-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .step-num {
+            min-width: 28px; height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .step-text code {
+            background: #e0e7ff;
+            color: var(--primary-dark);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-family: monospace;
+        }
+        .step-text strong { color: var(--text-main); }
+
+        /* 버튼 설명 */
+        .btn-guide-desc {
+            margin-top: 24px;
+        }
+        .btn-guide-desc h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-desc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 600px) { .btn-desc-grid { grid-template-columns: 1fr; } }
+        .btn-desc-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+        .btn-desc-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .btn-desc-info .btn-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 3px; }
+        .btn-desc-info .btn-role { font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <p>대용량 데이터를 처리 중입니다...</p>
+</div>
+
+<header>
+    <h1>Amaranth10 Happy Q&A Generator</h1>
+    <p>Network 응답 JSON을 붙여넣기만 하세요. 자동으로 정제된 Q&A 문서를 생성합니다.</p>
+    <button class="btn-guide" id="open-guide-btn" onclick="openGuide()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        사용법 보기
+    </button>
+</header>
+
+<div class="container">
+    <div class="input-section">
+        <div class="input-group">
+            <label>
+                <span>Network Response JSON</span>
+                <span id="data-size">0 KB</span>
+            </label>
+            <textarea id="json-input" placeholder='{ "state": "success", "data": [...] } 형태의 JSON을 붙여넣으세요.'></textarea>
+        </div>
+        
+        <!-- Google Sheets Integration -->
+        <div class="input-group" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <label>
+                <span>Google Sheets API URL (Apps Script)</span>
+            </label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="gsheet-url" placeholder="Apps Script 웹 앱 URL을 입력하세요" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                <button class="btn-outline" onclick="fetchHistory()" id="fetch-btn">기존 내역 불러오기</button>
+            </div>
+            <div id="history-status" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">기존 내역이 로드되지 않았습니다.</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="processData()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                문서 생성하기
+            </button>
+            <button class="btn-outline" onclick="copyTable()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                표 복사 (Excel용)
+            </button>
+            <button class="btn-primary" style="background: #10b981;" onclick="copyForAI()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                AI 요약용 복사
+            </button>
+            <button class="btn-primary" style="background: #3b82f6;" onclick="downloadMarkdown()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Markdown 다운로드
+            </button>
+            <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">필터:</label>
+                <select id="view-filter" onchange="renderTableWithCurrentData()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; cursor: pointer;">
+                    <option value="all">전체보기</option>
+                    <option value="new">신규 건만 보기 (중복 제외)</option>
+                    <option value="duplicate">중복 건만 보기</option>
+                </select>
+            </div>
+            <button class="btn-outline" onclick="window.print()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                인쇄 / PDF 저장
+            </button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="stats" id="stats-display">데이터를 로드해주세요.</div>
+        <div class="filter-group" style="display: flex; gap: 10px;">
+            <input type="text" id="filter-input" placeholder="결과 내 검색..." onkeyup="filterTable()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+        </div>
+    </div>
+
+    <div class="table-wrapper animate-fade" id="result-container">
+        <table id="qa-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">NO</th>
+                    <th rowspan="2">요청번호</th>
+                    <th colspan="3">요청</th>
+                    <th rowspan="2">메뉴명</th>
+                    <th rowspan="2">구분</th>
+                    <th rowspan="2">내용</th>
+                    <th rowspan="2">비고</th>
+                </tr>
+                <tr class="sub-header">
+                    <th>경로</th>
+                    <th>구분</th>
+                    <th>담당자/요청자</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 50px; color: var(--text-muted);">
+                        JSON 데이터를 붙여넣고 [문서 생성하기] 버튼을 눌러주세요.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentData = [];
+    let historyData = [];
+
+    function processData() {
+        const input = document.getElementById('json-input').value.trim();
+        if (!input) {
+            alert('JSON 데이터를 입력해주세요.');
+            return;
+        }
+
+        const loader = document.getElementById('loader');
+        loader.style.display = 'flex';
+
+        setTimeout(() => {
+            try {
+                const parsed = JSON.parse(input);
+                currentData = Array.isArray(parsed) ? parsed : (parsed.data || []);
+                
+                if (currentData.length === 0) {
+                    alert('데이터를 찾을 수 없습니다.');
+                    loader.style.display = 'none';
+                    return;
+                }
+
+                renderTable(currentData);
+                
+                document.getElementById('stats-display').innerHTML = `총 <b>${currentData.length}</b>건의 데이터가 로드되었습니다.`;
+                loader.style.display = 'none';
+            } catch (e) {
+                alert('JSON 파싱 오류: ' + e.message);
+                loader.style.display = 'none';
+            }
+        }, 50);
+    }
+
+    async function fetchHistory() {
+        const url = document.getElementById('gsheet-url').value.trim();
+        if (!url) {
+            alert('Apps Script URL을 입력해주세요.');
+            return;
+        }
+
+        const btn = document.getElementById('fetch-btn');
+        const status = document.getElementById('history-status');
+        
+        btn.innerText = '로딩 중...';
+        status.innerText = '구글 시트에서 데이터를 가져오는 중입니다...';
+
+        try {
+            const response = await fetch(url);
+            historyData = await response.json();
+            status.innerHTML = `<span style="color: #10b981;">✅ 기존 내역 <b>${historyData.length}</b>건을 불러왔습니다.</span>`;
+            if (currentData.length > 0) renderTable(currentData);
+        } catch (e) {
+            console.error(e);
+            status.innerHTML = `<span style="color: #ef4444;">❌ 로드 실패: URL이 정확한지, 배포 설정이 '모든 사용자'인지 확인하세요.</span>`;
+        } finally {
+            btn.innerText = '기존 내역 불러오기';
+        }
+    }
+
+    function renderTableWithCurrentData() {
+        if (currentData.length > 0) renderTable(currentData);
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('table-body');
+        const viewFilter = document.getElementById('view-filter').value;
+        tbody.innerHTML = '';
+
+        data.forEach((item, index) => {
+            // 중복 체크 로직
+            const cleanNewInq = (item.INQ_CNTN || "").replace(/\s/g, "");
+            const isDuplicate = historyData.some(h => {
+                const hInq = (h['문의내용'] || h['질문'] || h['INQ_CNTN'] || "").toString().replace(/\s/g, "");
+                return hInq.length > 0 && (cleanNewInq.includes(hInq) || hInq.includes(cleanNewInq.substring(0, 50)));
+            });
+
+            // 필터링 적용
+            if (viewFilter === 'new' && isDuplicate) return;
+            if (viewFilter === 'duplicate' && !isDuplicate) return;
+
+            const no = index + 1;
+            const qRow = document.createElement('tr');
+            qRow.className = `row-group ${isDuplicate ? 'is-duplicate' : ''}`;
+            
+            // 중복인 경우 스타일 차별화
+            if (isDuplicate) {
+                if (viewFilter === 'all') {
+                    qRow.style.opacity = '0.5';
+                    qRow.style.background = '#fef2f2';
+                } else if (viewFilter === 'duplicate') {
+                    qRow.style.background = '#fef2f2';
+                }
+            }
+            
+            qRow.innerHTML = `
+                <td rowspan="2" class="col-no">
+                    ${no}
+                    ${isDuplicate ? '<div style="color:#ef4444; font-size:10px; font-weight:bold;">중복</div>' : ''}
+                </td>
+                <td rowspan="2" class="col-reqno" style="font-weight: 600; font-size: 0.8rem; color: var(--primary);">
+                    ${item.REQN_NO || '-'}
+                </td>
+                <td rowspan="2" class="col-meta">
+                    <div style="font-size: 0.75rem; color: #666;">${item.DEV_FG_NM || '-'} ${isDuplicate ? '⚠️' : ''}</div>
+                </td>
+                <td rowspan="2" class="col-meta" style="text-align:center;">
+                    <span style="border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px;">${item.ACPT_FG_NM || '-'}</span>
+                </td>
+                <td rowspan="2" class="col-meta" style="text-align:center;">
+                    <div style="font-weight: 600;">${item.PROC_EMP_NM || '-'}</div>
+                    <div style="font-size: 0.8rem; color: #888;">${item.ACPT_EMP_NM || '-'}</div>
+                </td>
+                <td rowspan="2" class="col-menu">${item.FILE_NM || '-'}</td>
+                <td class="col-type type-q">질문</td>
+                <td class="col-content">
+                    <div class="content-box" style="color: #2563eb;">${(item.INQ_CNTN || '').replace(/\r\n/g, '<br>')}</div>
+                </td>
+                <td rowspan="2" class="col-reqno">${item.REQN_NO || ''}</td>
+            `;
+            
+            const aRow = document.createElement('tr');
+            aRow.className = `row-group ${isDuplicate ? 'is-duplicate' : ''}`;
+            if (isDuplicate && viewFilter === 'all') aRow.style.opacity = '0.5';
+            if (isDuplicate) aRow.style.background = '#fef2f2';
+
+            aRow.innerHTML = `
+                <td class="col-type type-a">답변</td>
+                <td class="col-content">
+                    <div class="content-box" style="color: #333;">${(item.ANSWER_CNTN || '등록된 답변이 없습니다.').replace(/\r\n/g, '<br>').replace(/\n/g, '<br>')}</div>
+                </td>
+            `;
+
+            tbody.appendChild(qRow);
+            tbody.appendChild(aRow);
+        });
+    }
+
+    function filterTable() {
+        const filter = document.getElementById('filter-input').value.toLowerCase();
+        const rows = document.querySelectorAll('#table-body tr.row-group');
+        
+        for (let i = 0; i < rows.length; i += 2) {
+            const qRow = rows[i];
+            const aRow = rows[i+1];
+            const text = qRow.innerText.toLowerCase() + aRow.innerText.toLowerCase();
+            
+            if (text.includes(filter)) {
+                qRow.style.display = '';
+                aRow.style.display = '';
+            } else {
+                qRow.style.display = 'none';
+                aRow.style.display = 'none';
+            }
+        }
+    }
+
+    function copyTable() {
+        const table = document.getElementById('qa-table');
+        const range = document.createRange();
+        range.selectNode(table);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        
+        try {
+            document.execCommand('copy');
+            alert('표가 클립보드에 복사되었습니다. 엑셀에 붙여넣으세요!');
+        } catch (err) {
+            alert('복사 실패: ' + err);
+        }
+        window.getSelection().removeAllRanges();
+    }
+
+    function copyForAI() {
+        const input = document.getElementById('json-input').value.trim();
+        if (!input) return;
+
+        try {
+            const parsed = JSON.parse(input);
+            const data = Array.isArray(parsed) ? parsed : (parsed.data || []);
+            
+            let aiText = "다음 상담 내역을 'Happy Q&A' 스타일로 요약해줘.\n\n";
+            
+            data.forEach((item, index) => {
+                // 불필요한 개인정보 및 시스템 정보 제거 로직
+                let cleanInq = (item.INQ_CNTN || "")
+                    .replace(/■ 접속URL : .*\n/g, "")
+                    .replace(/■ 회사명 : .*\n/g, "")
+                    .replace(/■ 온라인 문의번호 : .*\n/g, "")
+                    .replace(/고객전화번호 : .*\n/g, "")
+                    .replace(/고객명 : .*\n/g, "")
+                    .replace(/-{10,}/g, "")
+                    .trim();
+
+                aiText += `[No.${index+1}] 요청번호: ${item.REQN_NO || '-'} / 메뉴: ${item.FILE_NM}\n`;
+                aiText += `문의 원본: ${cleanInq.substring(0, 500)}${cleanInq.length > 500 ? '...' : ''}\n`;
+                aiText += `답변 원본: ${item.ANSWER_CNTN || '없음'}\n`;
+                aiText += `---\n`;
+            });
+
+            const el = document.createElement('textarea');
+            el.value = aiText;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            alert('AI 분석용 텍스트가 복사되었습니다! AI 채팅창에 붙여넣으세요.');
+        } catch (e) {
+            alert('JSON 파싱 실패');
+        }
+    }
+
+    function downloadMarkdown() {
+        const input = document.getElementById('json-input').value.trim();
+        if (!input) return;
+
+        try {
+            const parsed = JSON.parse(input);
+            const data = Array.isArray(parsed) ? parsed : (parsed.data || []);
+            
+            let mdText = "# Amaranth10 상담 내역 분석 데이터\n\n";
+            mdText += "| No | 요청번호 | 메뉴명 | 문의 내용 (정제됨) | 답변 내용 |\n";
+            mdText += "|---|---|---|---|---|\n";
+            
+            data.forEach((item, index) => {
+                let cleanInq = (item.INQ_CNTN || "")
+                    .replace(/■ 접속URL : .*\n/g, "")
+                    .replace(/■ 회사명 : .*\n/g, "")
+                    .replace(/■ 온라인 문의번호 : .*\n/g, "")
+                    .replace(/고객전화번호 : .*\n/g, "")
+                    .replace(/고객명 : .*\n/g, "")
+                    .replace(/\n/g, "<br>") // 표 안의 줄바꿈 처리
+                    .replace(/\|/g, "\\|")  // 표 구분자 이스케이프
+                    .replace(/-{10,}/g, "")
+                    .trim();
+
+                let cleanAns = (item.ANSWER_CNTN || "")
+                    .replace(/\n/g, "<br>")
+                    .replace(/\|/g, "\\|")
+                    .trim();
+
+                mdText += `| ${index+1} | ${item.REQN_NO || '-'} | ${item.FILE_NM || '-'} | ${cleanInq} | ${cleanAns} |\n`;
+            });
+
+            const blob = new Blob([mdText], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Amaranth10_QA_Analysis_${new Date().toISOString().slice(0,10)}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+        } catch (e) {
+            alert('JSON 파싱 실패: ' + e.message);
+        }
+    }
+
+    document.getElementById('json-input').addEventListener('input', function() {
+        const size = (this.value.length / 1024).toFixed(1);
+        document.getElementById('data-size').innerText = size + ' KB';
+    });
+
+    /* ─── 사용법 모달 ─── */
+    function openGuide() {
+        const modal = document.getElementById('guide-modal');
+        modal.classList.add('open');
+        // 동영상 자동 재생
+        const video = document.getElementById('guide-video');
+        if (video) video.play().catch(() => {});
+    }
+
+    function closeGuide() {
+        const modal = document.getElementById('guide-modal');
+        modal.classList.remove('open');
+        const video = document.getElementById('guide-video');
+        if (video) { video.pause(); video.currentTime = 0; }
+    }
+
+    // 모달 바깥 클릭 시 닫기
+    document.getElementById('guide-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeGuide();
+    });
+
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeGuide();
+    });
+</script>
+
+<!-- ═══════════════ 사용법 모달 ═══════════════ -->
+<div id="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="guide-modal-title">📖 사용법 가이드</h2>
+            <button class="modal-close" onclick="closeGuide()" title="닫기" aria-label="닫기">✕</button>
+        </div>
+        <div class="modal-body">
+
+            <!-- 동영상 -->
+            <video id="guide-video" class="guide-video" controls playsinline
+                   poster="" preload="metadata">
+                <source src="screen-capture.webm" type="video/webm">
+                브라우저가 동영상을 지원하지 않습니다.
+            </video>
+
+            <!-- 5단계 사용 가이드 -->
+            <div class="guide-steps">
+                <h3>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    데이터 추출 방법 (5단계)
+                </h3>
+                <ol class="step-list">
+                    <li>
+                        <span class="step-num">1</span>
+                        <span class="step-text">
+                            <strong>NSM10 접속</strong> → <strong>수정요청현황</strong> 메뉴에 진입한 후,
+                            브라우저에서 <code>F12</code> 를 눌러 개발자 도구를 엽니다.
+                        </span>
+                    </li>
+                    <li>
+                        <span class="step-num">2</span>
+                        <span class="step-text">
+                            <strong>NSM 조회</strong> 버튼을 클릭하여 데이터를 조회합니다.
+                        </span>
+                    </li>
+                    <li>
+                        <span class="step-num">3</span>
+                        <span class="step-text">
+                            개발자 도구 상단 탭에서 <code>Network</code> 탭을 선택하고,
+                            네트워크 요청 목록에서 해당 요청을 클릭한 뒤 <code>Response</code> 탭을 확인합니다.
+                        </span>
+                    </li>
+                    <li>
+                        <span class="step-num">4</span>
+                        <span class="step-text">
+                            Response 내용을 <code>Ctrl + A</code> 로 전체 선택한 후
+                            <code>Ctrl + C</code> 로 복사합니다.
+                        </span>
+                    </li>
+                    <li>
+                        <span class="step-num">5</span>
+                        <span class="step-text">
+                            이 페이지의 <strong>「Network Response JSON」</strong> 입력창에 붙여넣고
+                            <strong>「문서 생성하기」</strong> 버튼을 누르면 끝!
+                        </span>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- 버튼 역할 설명 -->
+            <div class="btn-guide-desc">
+                <h3>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    버튼 기능 안내
+                </h3>
+                <div class="btn-desc-grid">
+                    <div class="btn-desc-card">
+                        <div class="btn-desc-icon" style="background:#ede9fe;">
+                            <svg width="20" height="20" fill="none" stroke="#6366f1" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div class="btn-desc-info">
+                            <div class="btn-name" style="color:#6366f1;">⚡ 문서 생성하기</div>
+                            <div class="btn-role">붙여넣은 JSON을 파싱하여 Q&amp;A 표를 자동으로 생성합니다. 데이터 입력 후 반드시 먼저 실행하세요.</div>
+                        </div>
+                    </div>
+                    <div class="btn-desc-card">
+                        <div class="btn-desc-icon" style="background:#f0fdf4;">
+                            <svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2"/>
+                            </svg>
+                        </div>
+                        <div class="btn-desc-info">
+                            <div class="btn-name" style="color:#10b981;">📋 표 복사 (Excel용)</div>
+                            <div class="btn-role">화면에 보이는 Q&amp;A 표 전체를 클립보드에 복사합니다. 그대로 Excel에 붙여넣어 활용하세요.</div>
+                        </div>
+                    </div>
+                    <div class="btn-desc-card">
+                        <div class="btn-desc-icon" style="background:#fefce8;">
+                            <svg width="20" height="20" fill="none" stroke="#f59e0b" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <div class="btn-desc-info">
+                            <div class="btn-name" style="color:#d97706;">🤖 AI 요약용 복사</div>
+                            <div class="btn-role">개인정보·불필요 정보를 제거하고 AI가 읽기 좋은 텍스트 형식으로 변환 후 복사합니다. ChatGPT 등 AI에 바로 붙여넣으세요.</div>
+                        </div>
+                    </div>
+                    <div class="btn-desc-card">
+                        <div class="btn-desc-icon" style="background:#eff6ff;">
+                            <svg width="20" height="20" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                        </div>
+                        <div class="btn-desc-info">
+                            <div class="btn-name" style="color:#3b82f6;">⬇ Markdown 다운로드</div>
+                            <div class="btn-role">Q&amp;A 데이터를 Markdown 표 형식(.md)으로 변환하여 파일로 저장합니다. NotebookLM이나 Obsidian 등에 활용하세요.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.modal-body -->
+    </div><!-- /.modal-box -->
+</div><!-- /#guide-modal -->
+
+</body>
+</html>
